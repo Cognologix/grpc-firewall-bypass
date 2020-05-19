@@ -61,7 +61,7 @@ func handleConn(conn *grpc.ClientConn) {
 	defer conn.Close()
 	c := api.NewPingClient(conn)
 	for i := 0; i < 10; i++ {
-		response, err := c.RunCommand(context.Background(), &api.CommandMessage{Command: "setConf"})
+		response, err := c.RunCommand(context.Background(), &api.CommandMessage{Command: "setConfigValue"})
 		if err != nil {
 			log.Fatalf("error when calling RunCommand: %s", err)
 		}
