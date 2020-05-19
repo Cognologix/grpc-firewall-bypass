@@ -5,7 +5,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/dustin-decker/grpc-firewall-bypass/api"
 	"github.com/hashicorp/yamux"
 	"google.golang.org/grpc"
 )

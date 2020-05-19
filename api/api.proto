@@ -3,6 +3,16 @@ package api;
 message PingMessage {
   string greeting = 1;
 }
+
+message CommandMessage {
+  string command = 1;
+}
+
+message CommandResponse {
+  string commandResult = 1;
+}
+
 service Ping {
   rpc SayHello(PingMessage) returns (PingMessage) {}
+  rpc RunCommand(CommandMessage) returns (CommandResponse) {}
 }

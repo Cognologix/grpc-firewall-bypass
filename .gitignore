@@ -1,3 +1,4 @@
 vendor
 bin/client
 bin/server
+.idea

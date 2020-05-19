@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
+	"github.com/hashicorp/yamux"
+	"google.golang.org/grpc"
+	"grpc-firewall-bypass/api"
 	"log"
 	"net"
 	"time"
-
-	"github.com/dustin-decker/grpc-firewall-bypass/api"
-	"github.com/hashicorp/yamux"
-	"google.golang.org/grpc"
 )
 
 // TCP server and GRPC client
@@ -61,9 +60,12 @@ func main() {
 func handleConn(conn *grpc.ClientConn) {
 	defer conn.Close()
 	c := api.NewPingClient(conn)
-	response, err := c.SayHello(context.Background(), &api.PingMessage{Greeting: "foo"})
-	if err != nil {
-		log.Fatalf("error when calling SayHello: %s", err)
+	for {
+		response, err := c.RunCommand(context.Background(), &api.CommandMessage{Command: "setConf"})
+		if err != nil {
+			log.Fatalf("error when calling RunCommand: %s", err)
+		}
+		log.Printf("response from server: %s", response.CommandResult)
 	}
-	log.Printf("response from server: %s", response.Greeting)
+
 }
