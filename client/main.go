@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/yamux"
+	"cognologix.com/grpc-firewall-bypass/api"
 	"google.golang.org/grpc"
 )
 

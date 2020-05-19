@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/yamux"
 	"google.golang.org/grpc"
-	"grpc-firewall-bypass/api"
+	"cognologix.com/grpc-firewall-bypass/api"
 	"log"
 	"net"
 	"time"
