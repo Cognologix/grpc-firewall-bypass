@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/yamux"
 	"google.golang.org/grpc"
 	"cognologix.com/grpc-firewall-bypass/api"
+	"cognologix.com/grpc-firewall-bypass/gnmi"
 	"log"
 	"net"
 	"time"
@@ -59,9 +60,10 @@ func main() {
 
 func handleConn(conn *grpc.ClientConn) {
 	defer conn.Close()
-	c := api.NewPingClient(conn)
+	//c := api.NewPingClient(conn)
+	c := gnmi.NewGNMIClient(conn)
 	for i := 0; i < 10; i++ {
-		response, err := c.RunCommand(context.Background(), &api.CommandMessage{Command: "setConfigValue"})
+		response, err := c.Get(context.Background(), &gnmi.GetRequest{Command: "setConfigValue"})
 		if err != nil {
 			log.Fatalf("error when calling RunCommand: %s", err)
 		}
