@@ -1,12 +1,12 @@
 package main
 
 import (
+	"cognologix.com/grpc-firewall-bypass/gnmi"
 	"log"
 	"net"
 	"time"
 
 	"github.com/hashicorp/yamux"
-	"cognologix.com/grpc-firewall-bypass/api"
 	"google.golang.org/grpc"
 )
 
@@ -23,13 +23,13 @@ func main() {
 	}
 
 	// create a server instance
-	s := api.Server{}
+	s := gnmi.Server{}
 
 	// create a gRPC server object
 	grpcServer := grpc.NewServer()
 
 	// attach the Ping service to the server
-	api.RegisterPingServer(grpcServer, &s)
+	gnmi.RegisterGNMIServer(grpcServer, &s)
 
 	// start the gRPC erver
 	log.Println("launching gRPC server over TCP connection...")

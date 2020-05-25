@@ -1,34 +1,54 @@
 package gnmi
 
 import (
-	"cmf/proto/gnmi_ext"
-	context "context"
-	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
+	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log"
+	"time"
 )
 
-type GNMIServer struct {
+type Server struct {
+
 }
 
-func (c *GNMIServer) Capabilities(ctx context.Context, in *CapabilityRequest) (*CapabilityResponse, error) {
+func (c *Server) Capabilities(ctx context.Context, in *CapabilityRequest) (*CapabilityResponse, error) {
 	log.Printf("Receive message %s", in)
 	return nil, status.Errorf(codes.Unimplemented, "method Capabilities not implemented")
 }
-func (c *GNMIServer) Get(ctx context.Context, in *GetRequest) (*GetResponse, error) {
-	log.Printf("Receive message %s", in)
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (s *Server) Get(ctx context.Context, req *GetRequest) (*GetResponse, error) {
+	log.Printf("func (s *Server) Get(): Receive message %s", req)
+	if req.GetType() != GetRequest_ALL {
+		return nil, status.Errorf(codes.Unimplemented, "unsupported request type: %s", GetRequest_DataType_name[int32(req.GetType())])
+	}
+	prefix := req.GetPrefix()
+	paths := req.GetPath()
+	notifications := make([]*Notification, len(paths))
+	for i, path := range paths {
+		val := &TypedValue{
+			Value: &TypedValue_IntVal{
+				IntVal: int64((i + 1) * 30),
+			},
+		}
+		ts := time.Now().UnixNano()
+		update := &Update{Path: path, Val: val}
+		notifications[i] = &Notification{
+			Timestamp: ts,
+			Prefix:    prefix,
+			Update:    []*Update{update},
+		}	
+	}
+	return &GetResponse{Notification: notifications}, nil
 }
-func (c *GNMIServer) Set(ctx context.Context, in *SetRequest) (*SetResponse, error) {
+func (c *Server) Set(ctx context.Context, in *SetRequest) (*SetResponse, error) {
 	log.Printf("Receive message %s", in)
 	return nil, status.Errorf(codes.Unimplemented, "method Set not implemented")
 }
-func (c *GNMIServer) Subscribe(GNMI_SubscribeServer) error {
-	log.Printf("Receive message %s", in)
+func (c *Server) Subscribe(GNMI_SubscribeServer) error {
+	// log.Printf("Receive message %s", in)
 	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
 }
-func (c *GNMIServer) SubscribeWeb(in *SubscribeRequest, server GNMI_SubscribeWebServer) error {
+func (c *Server) SubscribeWeb(in *SubscribeRequest, server GNMI_SubscribeWebServer) error {
 	log.Printf("Receive message %s", in)
 	return status.Errorf(codes.Unimplemented, "method SubscribeWeb not implemented")
 }
