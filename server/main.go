@@ -44,9 +44,14 @@ func main() {
 		// gRPC dial over incoming net.Conn
 		conn, err = grpc.Dial(":7777", grpc.WithInsecure(),
 			grpc.WithDialer(func(target string, timeout time.Duration) (net.Conn, error) {
+				var address net.Addr
+				address = incomingConn.RemoteAddr()
+				log.Println("Remote Address :: " + address.String())
 				return incomingConn.Open()
 			}),
 		)
+
+
 
 		if err != nil {
 			log.Fatalf("did not connect: %s", err)
