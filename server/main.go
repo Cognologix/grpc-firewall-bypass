@@ -10,17 +10,18 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 )
 
-var m = make(map[string]api.PingClient)
+var m = make(map[string]*grpc.ClientConn)
 
 func handleRequests() {
 	log.Println("Starting REST API ...")
 	// creates a new instance of a mux router
 	myRouter := mux.NewRouter().StrictSlash(true)
 	// replace http.HandleFunc with myRouter.HandleFunc
-	myRouter.HandleFunc("/command/{serverAddress}/{commandString}", runCommand)
+	myRouter.HandleFunc("/command/{serverAddress}/{commandString}", restMethod)
 	// finally, instead of passing in nil, we want
 	// to pass in our newly created router as the second
 	// argument
@@ -71,14 +72,15 @@ func initGrpcServer() {
 		}
 
 		//defer conn.Close()
-		c := api.NewPingClient(conn)
-		m[stringAddress] = c
+		//c := api.NewPingClient(conn)
+		stringIPAddress := strings.Split(stringAddress, ":")[0]
+		m[stringIPAddress] = conn
 		// handle connection in goroutine so we can accept new TCP connections
 		//go handleConn(conn, stringAddress, "Get")
 	}
 }
 
-func runCommand(w http.ResponseWriter, r *http.Request){
+func restMethod(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	command := vars["commandString"]
 	serverAddress := vars["serverAddress"]
@@ -86,10 +88,10 @@ func runCommand(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, output)
 }
 
-func handleConn(c api.PingClient, serverAddress string, command string ) string {
+func handleConn(conn *grpc.ClientConn, serverAddress string, command string ) string {
 	//defer conn.Close()
-	//c := api.NewPingClient(conn)
-
+	c := api.NewPingClient(conn)
+	log.Println("input data " + serverAddress + " command " + command)
 	response, err := c.RunCommand(context.Background(), &api.CommandMessage{Command: command})
 	if err != nil {
 		log.Fatalf("error when calling RunCommand: %s", err)
@@ -98,9 +100,6 @@ func handleConn(c api.PingClient, serverAddress string, command string ) string 
 	return "From Device: \n\nServerAddress: " + serverAddress  +
 		" \n\nCommand Sent to Device = " + command +
 		" \n\nCommand Output = " + response.CommandResult
-
-
-
 
 }
 
